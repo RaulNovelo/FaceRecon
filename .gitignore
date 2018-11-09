@@ -150,33 +150,25 @@ dmypy.json
 pyvenv.cfg
 pip-selfcheck.json
 
-### OpenCV's xml files ###
-xml-files/
-xml-files/*.xml
-opencv
-/opencv
-opencv/
-opencv/*.xml
-/opencv/*.xml
-*.xml
+### My stuff ###
 
-### Feed images ###
-training-data
-/training-data
+# Training images
 training-data/
-training-data/*.jpg
-/training-data/*.jpg
-*.jpg
-*.jpeg
-*.png
 
-### Other stuff ###
+# Trained model data
+model/
+
+# PyCharm stuff
 .idea/
 .idea
 
-### My crazy stuff ###
+# Temporary files
 test.py
 test2.py
+original.py
+video.py
 secure-cake
 secure-cake/
-model.yml
+test-data
+test-data/
+
