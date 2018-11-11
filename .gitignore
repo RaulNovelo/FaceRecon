@@ -78,6 +78,10 @@ coverage.xml
 *.mo
 *.pot
 
+# PyCharm stuff
+.idea/
+.idea
+
 # Django stuff:
 *.log
 local_settings.py
@@ -154,22 +158,15 @@ pip-selfcheck.json
 ### My stuff ###
 
 # Training images
-training-data/
-
-# Trained model data
-model/
-
-# PyCharm stuff
-.idea/
-.idea
+training-data/*
+test-data
 
 # Temporary files
 test.py
 test2.py
 original.py
 video.py
+
+# Project's data security copy
 secure-cake
 secure-cake/
-test-data
-test-data/
-
