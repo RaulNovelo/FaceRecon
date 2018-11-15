@@ -3,7 +3,8 @@ import numpy as np
 import os
 import shutil
 import time
-
+import socket
+import sys
 
 def resizeDyn(refrncSide=None, size=None, factor=None):
     """Returns a resized version depending on different conditions"""
@@ -29,7 +30,7 @@ def showCurrentProfiles():
         print("Leyendo perfiles")
         file = open("model/profiles.txt")
         for line in file:
-            print(line, end="")
+            print(line + "\n")
         file.close()
     else:
         print("No existe perfil alguno")
@@ -524,6 +525,122 @@ def startRecon():
     video.release()
     cv2.destroyAllWindows()
 
+class VideoStreamingTest(object):
+    def __init__(self, host, port):
+
+        self.server_socket = socket.socket()
+        self.server_socket.bind((host, port))
+        self.server_socket.listen(0)
+        self.connection, self.client_address = self.server_socket.accept()
+        self.connection = self.connection.makefile('rb')
+        self.host_name = socket.gethostname()
+        self.host_ip = socket.gethostbyname(self.host_name)
+        self.streaming()
+
+    def drawRectangleText(self, img, x, y, w, h, text, color=(0, 255, 0)):
+        """Draw a rectangle with the given coordinates (rect) in the image"""
+        cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
+        cv2.putText(img, text, (x + 5, y - 5), cv2.FONT_HERSHEY_PLAIN, 1.5, color, 2)
+        return img
+
+    def streaming(self):
+        # DEFAULT SIZES
+        minFaceSize = 45  # 40 is good for PiCamera detection up to 4 meters
+        maxFaceSize = 155  # up to 160 (smaller size, better performance)
+
+        # LOAD RESOURCES
+        # Load detectors
+        frontal_detector = cv2.CascadeClassifier('xml-files/lbpcascades/lbpcascade_frontalface.xml')
+        stop_sign_detector = cv2.CascadeClassifier('xml-files/haarcascades/stop_sign.xml')
+        # frontal_detector = cv2.CascadeClassifier('xml-files/haarcascades/traffic_light.xml')
+        lateral_detector = cv2.CascadeClassifier('xml-files/haarcascades/haarcascade_profileface.xml')
+
+        # Load subjects (for prediction)
+        subjects = loadSubjects()
+        # Load trained model
+        model = loadModel()
+
+        try:
+            print("Host: ", self.host_name + ' ' + self.host_ip)
+            print("Connection from: ", self.client_address)
+            print("Streaming...")
+            print("Press 'q' to exit")
+
+            # need bytes here
+            stream_bytes = b' '
+            while True:
+                stream_bytes += self.connection.read(1024)
+                first = stream_bytes.find(b'\xff\xd8')
+                last = stream_bytes.find(b'\xff\xd9')
+                if first != -1 and last != -1:
+                    jpg = stream_bytes[first:last + 2]
+                    stream_bytes = stream_bytes[last + 2:]
+                    
+                    frame = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
+                    
+                    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+                    frontal_faces = frontal_detector.detectMultiScale(
+                        gray,
+                        scaleFactor=1.2,
+                        minNeighbors=8,
+                        minSize=(minFaceSize, minFaceSize),
+                        maxSize=(maxFaceSize, maxFaceSize)
+                    )
+
+                    stop_signs = stop_sign_detector.detectMultiScale(
+                        gray,
+                        scaleFactor=1.2,
+                        minNeighbors=10,
+                        minSize=(minFaceSize, minFaceSize),
+                        maxSize=(maxFaceSize, maxFaceSize)
+                    )
+
+                    lateral_faces = lateral_detector.detectMultiScale(
+                        gray,
+                        scaleFactor=1.2,
+                        minNeighbors=10,
+                        minSize=(minFaceSize, minFaceSize),
+                        maxSize=(maxFaceSize, maxFaceSize)
+                    )
+
+                    # Draw a rectangle around the faces
+                    for (x, y, w, h) in frontal_faces:
+                        # cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                        # Crop face
+                        cropped_face = gray[y:y + w, x:x + h]
+                        # Perform recognition of face
+                        recognition_info = performPrediction(cropped_face, model, subjects)
+                        
+                        print(recognition_info)
+                        # Draw rectangle and text
+                        frame = self.drawRectangleText(frame, x, y, h, w, recognition_info)
+
+                    # for (x, y, w, h) in lateral_faces:
+                    #    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+                    for (x, y, w, h) in stop_signs:
+                        frame = self.drawRectangleText(frame, x, y, h, w, 'stop', (0, 0, 255)) # cambiar al tuyo
+                        print('stop sign detected')
+
+                    # Debug face range rectangles
+                    cv2.rectangle(frame, (0, 0), (0 + maxFaceSize, 0 + maxFaceSize), (255, 0, 0))  # Max size
+                    cv2.rectangle(frame, (maxFaceSize, 0), (maxFaceSize + minFaceSize, 0 + minFaceSize), (0, 0, 255))  # Min size
+
+                    # Display the resulting frame
+                    cv2.imshow('video', frame)
+
+                    # Press 'q' to stop face recognition
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        break
+        finally:
+            self.connection.close()
+            self.server_socket.close()
+
+def startStreamServer():
+    h, p = sys.argv[1].split(' ')[0], 8000
+    print("server running on", sys.argv[1].split(' ')[0])
+    VideoStreamingTest(h, p)
 
 if __name__ == "__main__":
     while True:
@@ -555,20 +672,23 @@ if __name__ == "__main__":
                         # Start facial recognition
                         print("Reconociendo")
                         print()
-                        startRecon()
+                        # startRecon()
+                        startStreamServer()
                         print()
                     else:
                         # There's no model. Train and then recon
                         print("Entrenando y reconociendo")
                         print()
                         trainModel()
-                        startRecon()
+                        # startRecon()
+                        startStreamServer()
                 else:
                     # Model is out to date. Train and then recon
                     print("Actualizando y reconociendo")
                     print()
                     trainModel()
-                    startRecon()
+                    # startRecon()
+                    startStreamServer()
             else:
                 print("No existe status")
                 exit(0)
