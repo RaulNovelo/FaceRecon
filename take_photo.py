@@ -112,9 +112,9 @@ for (x, y, w, h) in stop_signs:
     from random import random
     image = drawRectangleText(image, x, y, h, w, 'stop sign', (0, 0, 255))
     print('stop sign')
-    cv2.imwrite('/home/pi/Desktop/photos/stop_sign.jpg', image)
+    cv2.imwrite('/home/pi/Desktop/FaceRecon/photos/stop_sign.jpg', image)
     os.system('sudo python3 /home/pi/Desktop/RPiControllers/send_email.py ' +
-               '/home/pi/Desktop/FaceReco/photos/stop_sign.jpg')
+               '/home/pi/Desktop/FaceRecon/photos/stop_sign.jpg')
 
     # PROCESSING EACH FACE IN image
     for (x, y, h, w) in faces:
@@ -125,7 +125,7 @@ for (x, y, w, h) in stop_signs:
         # Draw rectangle and text
         print(recognition_info)
         image = drawRectangleText(image, x, y, h, w, recognition_info)
-        cv2.imwrite('/home/pi/Desktop/photos/' +
+        cv2.imwrite('/home/pi/Desktop/FaceRecon/photos/' +
                     recognition_info.split(' ')[0] + '.jpg', image)
         os.system('sudo python3 /home/pi/Desktop/RPiControllers/send_email.py ' +
                   '/home/pi/Desktop/photos/' + recognition_info.split(' ')[0] + '.jpg')

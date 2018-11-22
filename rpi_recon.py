@@ -111,11 +111,10 @@ def startRecon():
         )
 
         for (x, y, w, h) in stop_signs:
-            from random import random
             frame = drawRectangleText(frame, x, y, h, w, 'stop sign', (0, 0, 255))
             print('stop sign')
-            cv2.imwrite('/home/pi/Desktop/photos/stop_sign.jpg', frame)
-            os.system('sudo python3 /home/pi/Desktop/RPiControllers/send_email.py ' + '/home/pi/Desktop/FaceReco/photos/stop_sign.jpg')
+            cv2.imwrite('/home/pi/Desktop/FaceRecon/photos/stop_sign.jpg', frame)
+            os.system('sudo python3 /home/pi/Desktop/RPiControllers/send_email.py ' + '/home/pi/Desktop/FaceRecon/photos/stop_sign.jpg')
         
         # PROCESSING EACH FACE IN FRAME
         for (x, y, h, w) in faces:
@@ -126,8 +125,8 @@ def startRecon():
             # Draw rectangle and text
             print(recognition_info)
             frame = drawRectangleText(frame, x, y, h, w, recognition_info)
-            cv2.imwrite('/home/pi/Desktop/photos/' + recognition_info.split(' ')[0] + '.jpg', frame)
-            os.system('sudo python3 /home/pi/Desktop/RPiControllers/send_email.py ' + '/home/pi/Desktop/photos/' + recognition_info.split(' ')[0] + '.jpg')
+            cv2.imwrite('/home/pi/Desktop/FaceRecon/photos/' + recognition_info.split(' ')[0] + '.jpg', frame)
+            os.system('sudo python3 /home/pi/Desktop/RPiControllers/send_email.py ' + '/home/pi/Desktop/FaceRecon/photos/' + recognition_info.split(' ')[0] + '.jpg')
         
         # Draw rectangles indicating smallest and biggest space that can be detected as a face
         # cv2.rectangle(frame, (0, 0), (0 + minFaceSize, 0 + minFaceSize), (0, 0, 255))  # Min size
