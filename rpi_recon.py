@@ -57,7 +57,7 @@ def loadModel():
         print("No se encontro archivo de modelo")
         exit(0)
 
-    face_recognizer = cv2.face.createLBPHFaceRecognizer()
+    face_recognizer = cv2.face.LBPHFaceRecognizer_create()
     face_recognizer.read("/home/pi/Desktop/FaceRecon/model/model.yml")
 
     return face_recognizer
