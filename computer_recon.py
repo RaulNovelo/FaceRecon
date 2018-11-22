@@ -4,7 +4,6 @@ import os
 import shutil
 import time
 import socket
-import sys
 
 def resizeDyn(refrncSide=None, size=None, factor=None):
     """Returns a resized version depending on different conditions"""
@@ -611,10 +610,9 @@ class VideoStreamingTest(object):
                         cropped_face = gray[y:y + w, x:x + h]
                         # Perform recognition of face
                         recognition_info = performPrediction(cropped_face, model, subjects)
-                        
                         print(recognition_info)
-                        # Draw rectangle and text
                         frame = self.drawRectangleText(frame, x, y, h, w, recognition_info)
+                        cv2.imwrite(recognition_info.split(' ')[0] + '.jpg', frame)
 
                     # for (x, y, w, h) in lateral_faces:
                     #    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
@@ -622,11 +620,12 @@ class VideoStreamingTest(object):
                     for (x, y, w, h) in stop_signs:
                         frame = self.drawRectangleText(frame, x, y, h, w, 'stop', (0, 0, 255)) # cambiar al tuyo
                         print('stop sign detected')
+                        cv2.imwrite('stop_sign.jpg', frame)
 
                     # Debug face range rectangles
                     cv2.rectangle(frame, (0, 0), (0 + maxFaceSize, 0 + maxFaceSize), (255, 0, 0))  # Max size
                     cv2.rectangle(frame, (maxFaceSize, 0), (maxFaceSize + minFaceSize, 0 + minFaceSize), (0, 0, 255))  # Min size
-
+                    
                     # Display the resulting frame
                     cv2.imshow('video', frame)
 
