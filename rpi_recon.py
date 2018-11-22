@@ -40,10 +40,10 @@ def performPrediction(face, recognizer, subjects):
 def loadSubjects():
     relations = {}
 
-    if not os.path.isfile("model/profiles.txt"):
+    if not os.path.isfile("/home/pi/Desktop/FaceRecon/model/profiles.txt"):
         print("No se encontro archivo de perfiles")
         exit(0)
-    file = open("model/profiles.txt", "r")
+    file = open("/home/pi/Desktop/FaceRecon/model/profiles.txt", "r")
     for line in file:
         line = line.replace("\n", "")
         relations[int(line[0])] = line.replace(line[0] + "-", "")
@@ -53,12 +53,12 @@ def loadSubjects():
 
 
 def loadModel():
-    if not os.path.isfile("model/model.yml"):
+    if not os.path.isfile("/home/pi/Desktop/FaceRecon/model/model.yml"):
         print("No se encontro archivo de modelo")
         exit(0)
 
     face_recognizer = cv2.face.LBPHFaceRecognizer_create()
-    face_recognizer.read("model/model.yml")
+    face_recognizer.read("/home/pi/Desktop/FaceRecon/model/model.yml")
 
     return face_recognizer
 
@@ -80,10 +80,10 @@ def startRecon():
     model = loadModel()
 
     # Load detectors
-    faces_detector = cv2.CascadeClassifier('xml-files/lbpcascades/lbpcascade_frontalface.xml')
-    stop_sign_detector = cv2.CascadeClassifier('xml-files/haarcascades/stop_sign.xml')
+    faces_detector = cv2.CascadeClassifier('/home/pi/Desktop/FaceRecon/xml-files/lbpcascades/lbpcascade_frontalface.xml')
+    stop_sign_detector = cv2.CascadeClassifier('/home/pi/Desktop/FaceRecon/xml-files/haarcascades/stop_sign.xml')
     # frontal_detector = cv2.CascadeClassifier('xml-files/haarcascades/traffic_light.xml')
-    lateral_detector = cv2.CascadeClassifier('xml-files/haarcascades/haarcascade_profileface.xml')
+    lateral_detector = cv2.CascadeClassifier('/home/pi/Desktop/FaceRecon/xml-files/haarcascades/haarcascade_profileface.xml')
 
     # Video stream (here we can capture an RPi stream instance)
     for image in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
