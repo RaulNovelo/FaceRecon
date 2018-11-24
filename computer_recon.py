@@ -639,34 +639,31 @@ class VideoStreamingTest(Thread):
         finally:
             self.connection.close()
             self.server_socket.close()
-            
 
 class Consumer(Thread):
-    def __init__(self, host, port):
-        self.server_socket = socket.socket()
-        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.server_socket.bind((host, port))
-        self.server_socket.listen(0)
-        self.connection, self.client_address = self.server_socket.accept()
-        self.host_name = socket.gethostname()
-        self.host_ip = socket.gethostbyname(self.host_name)
-        self.run()
-
     def run(self):
+        from socket import *
+        import time
+        import sys
+        import os
+
+        # create a socket and bind socket to the host
+        client_socket = socket(AF_INET, SOCK_STREAM)
+        client_socket.connect((sys.argv[1], 8002))
+
         try:
-            print("Host: ", self.host_name + ' ' + self.host_ip)
-            print("Connection from: ", self.client_address)
-
             while True:
-                print('Hola')
-                if len(pipeline) > 0:
-                    data = pipeline.pop()
-                    self.connection.send(str(data))
-                    print(data)
-
+                try:
+                    print('Hola')
+                    if len(pipeline) > 0:
+                        data = pipeline.pop()
+                        client_socket.send(str(data))
+                        print(data)
+                except:
+                    pass
+                
         finally:
-            self.connection.close()
-            self.server_socket.close()
+            client_socket.close()
 
 def startStreamServer():
     h, p = sys.argv[1].split(' ')[0], 8000

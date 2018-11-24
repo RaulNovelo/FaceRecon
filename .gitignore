@@ -3,7 +3,7 @@
 # $ git config --global mergetool.keepBackup false
 *.orig
 .vscode
-
+model/*.yml
 # Created by git when using merge tools for conflicts
 *.BACKUP.*
 *.BASE.*
