@@ -28,3 +28,6 @@ class Consumer(Thread):
         finally:
             self.connection.close()
             self.server_socket.close()
+
+if __name__ == "__main__":
+    Consumer(sys.argv[1], 8002).start()
