@@ -4,11 +4,10 @@ import os
 import shutil
 import time
 import socket
-
-def resizeDyn(refrncSide=None, size=None, factor=None):
-    """Returns a resized version depending on different conditions"""
-    pass
-
+import sys
+from threading import Thread
+import time
+import random
 
 def convertToGray(img):
     """Returns a gray scale version of given img. Used when detecting faces"""
@@ -524,7 +523,9 @@ def startRecon():
     video.release()
     cv2.destroyAllWindows()
 
-class VideoStreamingTest(object):
+pipeline = []
+
+class VideoStreamingTest(Thread):
     def __init__(self, host, port):
 
         self.server_socket = socket.socket()
@@ -534,7 +535,7 @@ class VideoStreamingTest(object):
         self.connection = self.connection.makefile('rb')
         self.host_name = socket.gethostname()
         self.host_ip = socket.gethostbyname(self.host_name)
-        self.streaming()
+        self.run()
 
     def drawRectangleText(self, img, x, y, w, h, text, color=(0, 255, 0)):
         """Draw a rectangle with the given coordinates (rect) in the image"""
@@ -542,8 +543,9 @@ class VideoStreamingTest(object):
         cv2.putText(img, text, (x + 5, y - 5), cv2.FONT_HERSHEY_PLAIN, 1.5, color, 2)
         return img
 
-    def streaming(self):
+    def run(self):
         # DEFAULT SIZES
+        global pipeline
         minFaceSize = 45  # 40 is good for PiCamera detection up to 4 meters
         maxFaceSize = 155  # up to 160 (smaller size, better performance)
 
@@ -611,6 +613,7 @@ class VideoStreamingTest(object):
                         # Perform recognition of face
                         recognition_info = performPrediction(cropped_face, model, subjects)
                         print(recognition_info)
+                        pipeline.append(recognition_info)
                         frame = self.drawRectangleText(frame, x, y, h, w, recognition_info)
                         cv2.imwrite(recognition_info.split(' ')[0] + '.jpg', frame)
 
@@ -620,6 +623,7 @@ class VideoStreamingTest(object):
                     for (x, y, w, h) in stop_signs:
                         frame = self.drawRectangleText(frame, x, y, h, w, 'stop', (0, 0, 255)) # cambiar al tuyo
                         print('stop sign detected')
+                        pipeline.append(recognition_info)
                         cv2.imwrite('stop_sign.jpg', frame)
 
                     # Debug face range rectangles
@@ -635,11 +639,40 @@ class VideoStreamingTest(object):
         finally:
             self.connection.close()
             self.server_socket.close()
+            
+
+class Consumer(Thread):
+    def __init__(self, host, port):
+        self.server_socket = socket.socket()
+        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.server_socket.bind((host, port))
+        self.server_socket.listen(0)
+        self.connection, self.client_address = self.server_socket.accept()
+        self.host_name = socket.gethostname()
+        self.host_ip = socket.gethostbyname(self.host_name)
+        self.run()
+
+    def run(self):
+        try:
+            print("Host: ", self.host_name + ' ' + self.host_ip)
+            print("Connection from: ", self.client_address)
+
+            while True:
+                print('Hola')
+                if len(pipeline) > 0:
+                    data = pipeline.pop()
+                    self.connection.send(str(data))
+                    print(data)
+
+        finally:
+            self.connection.close()
+            self.server_socket.close()
 
 def startStreamServer():
     h, p = sys.argv[1].split(' ')[0], 8000
     print("server running on", sys.argv[1].split(' ')[0])
-    VideoStreamingTest(h, p)
+    VideoStreamingTest(h, p).start()
+    Consumer(h, 8002).start()
 
 if __name__ == "__main__":
     while True:
