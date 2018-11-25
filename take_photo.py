@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 
+=======
+# import the necessary packages
+from picamera import PiCamera
+>>>>>>> 0f7800f4a3e35f6334cba17cabd031bb0d41c534
 import time
 import cv2
 import os
@@ -60,6 +65,11 @@ def loadModel():
     return face_recognizer
 
 
+<<<<<<< HEAD
+=======
+# initialize the camera and grab a reference to the raw camera capture
+
+>>>>>>> 0f7800f4a3e35f6334cba17cabd031bb0d41c534
 minFaceSize = 50  # (50-150) is good for PiCamera detection up to 4 meters
 maxFaceSize = 250
 
@@ -67,7 +77,11 @@ maxFaceSize = 250
 time.sleep(0.1)
 
 # grab an image from the camera
+<<<<<<< HEAD
 image = cv2.imread('/home/pi/Desktop/FaceRecon/photos/test.jpg',0)
+=======
+image = img = cv2.imread('temp.png',0)
+>>>>>>> 0f7800f4a3e35f6334cba17cabd031bb0d41c534
 # LOADING RESOURCES
 # Relations number-person (smth like {1: "Fernando", 2: "Esteban", ...})
 subjects = loadSubjects()
@@ -126,4 +140,16 @@ for (x, y, w, h) in stop_signs:
 
 # display the image on screen and wait for a keypress
 cv2.imshow("Image", image)
+cv2.waitKey(0)
+import cv2
+import sys
+
+
+# Read the image
+image = cv2.imread(imagePath)
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+
+
+cv2.imshow("Faces found", image)
 cv2.waitKey(0)
