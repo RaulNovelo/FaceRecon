@@ -2,6 +2,8 @@ __author__ = 'zhengwang'
 
 import socket
 import time
+import os
+from subprocess import call
 
 class SensorStreamingTest(object):
     def __init__(self, host, port):
@@ -16,13 +18,18 @@ class SensorStreamingTest(object):
         self.streaming()
 
     def streaming(self):
+        CARPATH = '/home/pi/Desktop/RPiControllers/car'
         try:
             print("Host: ", self.host_name + ' ' + self.host_ip)
             print("Connection from: ", self.client_address)
 
             while True:
                 sensor_data = self.connection.recv(1024)
-                print(sensor_data)
+                try:
+                    print(str(sensor_data))
+                    os.system('sudo python {0}/{1}.py '.format(CARPATH, sensor_data))
+                except:
+                    pass
 
         finally:
             self.connection.close()

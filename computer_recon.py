@@ -624,7 +624,7 @@ class VideoStreamingTest(Thread):
                     for (x, y, w, h) in stop_signs:
                         frame = self.drawRectangleText(frame, x, y, h, w, 'stop', (0, 0, 255)) # cambiar al tuyo
                         print('stop sign detected')
-                        pipeline.append(recognition_info)
+                        pipeline.append('stop')
                         cv2.imwrite('stop_sign.jpg', frame)
 
                     # Debug face range rectangles
