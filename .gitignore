@@ -4,6 +4,10 @@
 *.orig
 .vscode
 model/*.yml
+photos/*
+*.jpg
+*.png
+
 # Created by git when using merge tools for conflicts
 *.BACKUP.*
 *.BASE.*
@@ -28,7 +32,6 @@ model/*.yml
 __pycache__
 *.py[cod]
 *$py.class
-photos/*
 
 # C extensions
 *.so
