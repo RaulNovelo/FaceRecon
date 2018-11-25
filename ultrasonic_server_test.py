@@ -24,10 +24,10 @@ class SensorStreamingTest(object):
             print("Connection from: ", self.client_address)
 
             while True:
-                sensor_data = self.connection.recv(1024)
+                sensor_data = self.connection.recv(1024).decode("utf-8")
                 try:
                     print(str(sensor_data))
-                    os.system('sudo python {0}/{1}.py '.format(CARPATH, sensor_data))
+                    os.system('sudo python {0}/{1}.py '.format(CARPATH, sensor_data ))
                 except:
                     pass
 
