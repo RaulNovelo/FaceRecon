@@ -6,6 +6,7 @@ import time
 import socket
 import sys
 from threading import Thread
+import threading
 import time
 import random
 
@@ -641,6 +642,10 @@ class VideoStreamingTest(Thread):
             self.server_socket.close()
 
 class Consumer(Thread):
+    def __init__(self, host):
+        threading.Thread.__init__(self)
+        self._host = host
+
     def run(self):
         from socket import *
         import time
@@ -649,12 +654,11 @@ class Consumer(Thread):
 
         # create a socket and bind socket to the host
         client_socket = socket(AF_INET, SOCK_STREAM)
-        client_socket.connect((sys.argv[1], 8002))
+        client_socket.connect((self._host, 8002))
 
         try:
             while True:
                 try:
-                    print('Hola')
                     if len(pipeline) > 0:
                         data = pipeline.pop()
                         client_socket.send(str(data))
@@ -668,8 +672,8 @@ class Consumer(Thread):
 def startStreamServer():
     h, p = sys.argv[1].split(' ')[0], 8000
     print("server running on", sys.argv[1].split(' ')[0])
+    Consumer('192.168.0.109').start()
     VideoStreamingTest(h, p).start()
-    Consumer(h, 8002).start()
 
 if __name__ == "__main__":
     while True:

@@ -21,8 +21,8 @@ class SensorStreamingTest(object):
             print("Connection from: ", self.client_address)
 
             while True:
-                sensor_data = float(self.connection.recv(1024))
-                print("Distance: %0.1f cm" % sensor_data)
+                sensor_data = self.connection.recv(1024)
+                print(sensor_data)
 
         finally:
             self.connection.close()
