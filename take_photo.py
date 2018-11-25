@@ -1,6 +1,4 @@
-# import the necessary packages
-from picamera.array import PiRGBArray
-from picamera import PiCamera
+
 import time
 import cv2
 import os
@@ -62,10 +60,6 @@ def loadModel():
     return face_recognizer
 
 
-# initialize the camera and grab a reference to the raw camera capture
-camera = PiCamera()
-rawCapture = PiRGBArray(camera)
-
 minFaceSize = 50  # (50-150) is good for PiCamera detection up to 4 meters
 maxFaceSize = 250
 
@@ -73,8 +67,7 @@ maxFaceSize = 250
 time.sleep(0.1)
 
 # grab an image from the camera
-camera.capture(rawCapture, format="bgr")
-image = rawCapture.array
+image = cv2.imread('/home/pi/Desktop/FaceRecon/photos/test.jpg',0)
 # LOADING RESOURCES
 # Relations number-person (smth like {1: "Fernando", 2: "Esteban", ...})
 subjects = loadSubjects()
@@ -88,6 +81,7 @@ stop_sign_detector = cv2.CascadeClassifier(
 # frontal_detector = cv2.CascadeClassifier('xml-files/haarcascades/traffic_light.xml')
 lateral_detector = cv2.CascadeClassifier(
     'xml-files/haarcascades/haarcascade_profileface.xml')
+
 
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -109,7 +103,6 @@ stop_signs = stop_sign_detector.detectMultiScale(
     )
 
 for (x, y, w, h) in stop_signs:
-    from random import random
     image = drawRectangleText(image, x, y, h, w, 'stop sign', (0, 0, 255))
     print('stop sign')
     cv2.imwrite('/home/pi/Desktop/FaceRecon/photos/stop_sign.jpg', image)
